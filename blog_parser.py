@@ -31,15 +31,15 @@ class BlogParser:
 
     def get_title(self, soup):
         title_tag = soup.find('title')
-        return title_tag.text.strip() if title_tag else 'No title found'
+        return title_tag.text.strip() if title_tag else 'No data'
 
     def get_author(self, soup):
         author = soup.find(attrs={"name": re.compile(r'author', re.I)})
-        return author['content'] if author else 'No author found'
+        return author['content'] if author else 'No data'
 
     def get_date(self, soup):
         date = soup.find(attrs={"name": re.compile(r'date', re.I)})
-        return date['content'] if date else 'No date found'
+        return date['content'] if date else 'No data'
 
     def get_content(self, soup):
         content_tags = ['article', 'div', 'section']
@@ -56,7 +56,8 @@ class BlogParser:
             'title': self.get_title(soup),
             'author': self.get_author(soup),
             'date': self.get_date(soup),
-            'content': self.get_content(soup)
+            'content': self.get_content(soup),
+            'url': url
         }
 
     def parse(self):
