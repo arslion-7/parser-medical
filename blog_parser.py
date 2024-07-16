@@ -37,9 +37,50 @@ class BlogParser:
         author = soup.find(attrs={"name": re.compile(r'author', re.I)})
         return author['content'] if author else 'No data'
 
+   
     def get_date(self, soup):
-        date = soup.find(attrs={"name": re.compile(r'date', re.I)})
-        return date['content'] if date else 'No data'
+        # Search for common meta tags
+        date_meta = soup.find('meta', attrs={"name": re.compile(r'date', re.I)})
+        if date_meta and date_meta.has_attr('content'):
+            return date_meta['content']
+        
+        # Search for common itemprop attributes
+        date_itemprop = soup.find(attrs={"itemprop": "datePublished"})
+        if date_itemprop:
+            return date_itemprop['content'] if date_itemprop.has_attr('content') else date_itemprop.text.strip()
+        
+        # Search for common datetime attributes
+        date_time = soup.find('time')
+        if date_time and date_time.has_attr('datetime'):
+            return date_time['datetime']
+        elif date_time:
+            return date_time.text.strip()
+        
+        # Search for common class or ID names
+        date_classes_ids = ['date', 'entry-date', 'published', 'post-date', 'article-date', 'time']
+        for cls in date_classes_ids:
+            date_tag = soup.find(attrs={"class": re.compile(cls, re.I)}) or soup.find(attrs={"id": re.compile(cls, re.I)})
+            if date_tag:
+                date_text = date_tag.text.strip()
+                if re.search(r'\b(?:20\d{2})\b', date_text):  # Ensure the text contains a year (e.g., 2022)
+                    return date_text
+        
+        # Search for specific format "Cutis. 2016 May;97(5):326-329"
+        specific_format_match = re.search(r'(\d{4})\s+(\w{3,})', soup.get_text())
+        if specific_format_match:
+            year = specific_format_match.group(1)
+            month = specific_format_match.group(2)
+            return f"{month} {year}"
+        
+        # Search for date in common tags directly, excluding generic text like "© 2024 All rights reserved"
+        for tag in ['span', 'div', 'p']:
+            date_tag = soup.find(tag, text=re.compile(r'\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|20\d{2}|[01]?\d/[0-3]?\d/[12]\d{3})\b', re.I))
+            if date_tag:
+                date_text = date_tag.text.strip()
+                if not re.search(r'\b(?:©|rights reserved)\b', date_text, re.I):  # Exclude generic copyright statements
+                    return date_text
+        
+        return 'No date found'
 
     def get_content(self, soup):
         content_tags = ['article', 'div', 'section']

@@ -2,7 +2,7 @@
 PATH_KEYWORDS = ['view', 'news', 'article', 'articles', 'post', 'posts', ]
 # sites
 SITES = [
-    'https://practicaldermatology.com/medical-news/',
     'https://www.hcplive.com/clinical/dermatology',
-    'https://www.mdedge.com/dermatology/pediatric-dermatology/latest'
+    'https://www.mdedge.com/dermatology/pediatric-dermatology/latest',
+    'https://practicaldermatology.com/medical-news/',
 ]
