@@ -37,7 +37,6 @@ class BlogParser:
         author = soup.find(attrs={"name": re.compile(r'author', re.I)})
         return author['content'] if author else 'No data'
 
-   
     def get_date(self, soup):
         # Search for common meta tags
         date_meta = soup.find('meta', attrs={"name": re.compile(r'date', re.I)})
